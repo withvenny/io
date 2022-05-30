@@ -1,32 +1,31 @@
-import { StyleSheet } from 'react-native';
+import React, {useEffect} from 'react';
+import {View, Text, FlatList, ActivityIndicator} from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
+import apiCall from '@store/actions/ApiActionCreator.tsx';
 
-import EditScreenInfo from '../components/EditScreenInfo';
-import { Text, View } from '../components/Themed';
-import { RootTabScreenProps } from '../types';
+const Home = () => {
 
-export default function TabOneScreen({ navigation }: RootTabScreenProps<'TabOne'>) {
+  const dispatch = useDispatch();
+  const data = useSelector((state) => state.apiReducer.data);
+  const loading = useSelector((state) => state.apiReducer.loading);
+
+  useEffect(() => {
+    dispatch(apiCall('https://jsonplaceholder.typicode.com/posts'));
+  }, []);
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Tab One</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="/screens/TabOneScreen.tsx" />
+    <View style={{flex: 1, backgroundColor: 'white', justifyContent: 'center'}}>
+      {loading ? (
+        <ActivityIndicator size="large" color="red" />
+      ) : (
+        <FlatList
+          data={data}
+          renderItem={({item}) => <Text>{item.title}</Text>}
+          keyExtractor={(item, index) => index.toString()}
+        />
+      )}
     </View>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
-  },
-});
+export default Home;
